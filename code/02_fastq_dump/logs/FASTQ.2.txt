@@ -1,0 +1,175 @@
+Adding LIBD modules
+Loading git
+Loading LIBD module for git-status-size/github
+Loading LIBD module for git-lfs/2.8.0
+Loading LIBD module for rmate/1.5.9
+Loading LIBD module for ruby/2.6.4p104
+Loading conda_R/4.2.x
+**** Job starts ****
+Fri Feb 17 06:32:10 EST 2023
+**** JHPCE info ****
+User: mtotty
+Job id: 2968371
+Job name: Yu_crossAMY_LIBD4125_FASTQ
+Hostname: compute-057.cm.cluster
+Task id: 2
+
+Currently Loaded Modules:
+  1) matlab/R2019a     6) COMMUNITY_CENTOS7_DEFAULT_ENV  11) ruby/2.6.4p104
+  2) stata/17          7) JHPCE_CENTOS7_DEFAULT_ENV      12) rmate/1.5.9
+  3) JHPCE_tools/1.0   8) git-status-size/github         13) conda/3-4.11.0
+  4) sge/8.1.9         9) git/2.28.0                     14) conda_R/4.2.x
+  5) gcc/4.4.7        10) git-lfs/2.8.0                  15) sratoolkit/2.10.8
+
+ 
+
+Processing sample SRR17762196
+Fri Feb 17 06:32:11 EST 2023
+Adding LIBD modules
+Loading git
+Loading LIBD module for git-status-size/github
+Loading LIBD module for git-lfs/2.8.0
+Loading LIBD module for rmate/1.5.9
+Loading LIBD module for ruby/2.6.4p104
+Loading conda_R/4.2.x
+**** Job starts ****
+Fri Feb 17 07:09:18 EST 2023
+**** JHPCE info ****
+User: mtotty
+Job id: 2968374
+Job name: Yu_crossAMY_LIBD4125_FASTQ
+Hostname: compute-076.cm.cluster
+Task id: 2
+
+Currently Loaded Modules:
+  1) matlab/R2019a     6) COMMUNITY_CENTOS7_DEFAULT_ENV  11) ruby/2.6.4p104
+  2) stata/17          7) JHPCE_CENTOS7_DEFAULT_ENV      12) rmate/1.5.9
+  3) JHPCE_tools/1.0   8) git-status-size/github         13) conda/3-4.11.0
+  4) sge/8.1.9         9) git/2.28.0                     14) conda_R/4.2.x
+  5) gcc/4.4.7        10) git-lfs/2.8.0                  15) sratoolkit/2.10.8
+
+ 
+
+Processing sample SRR17762196
+Fri Feb 17 07:09:19 EST 2023
+Adding LIBD modules
+Loading git
+Loading LIBD module for git-status-size/github
+Loading LIBD module for git-lfs/2.8.0
+Loading LIBD module for rmate/1.5.9
+Loading LIBD module for ruby/2.6.4p104
+Loading conda_R/4.2.x
+**** Job starts ****
+Fri Feb 17 07:24:55 EST 2023
+**** JHPCE info ****
+User: mtotty
+Job id: 2968375
+Job name: Yu_crossAMY_LIBD4125_FASTQ
+Hostname: compute-053.cm.cluster
+Task id: 2
+
+Currently Loaded Modules:
+  1) matlab/R2019a     6) COMMUNITY_CENTOS7_DEFAULT_ENV  11) ruby/2.6.4p104
+  2) stata/17          7) JHPCE_CENTOS7_DEFAULT_ENV      12) rmate/1.5.9
+  3) JHPCE_tools/1.0   8) git-status-size/github         13) conda/3-4.11.0
+  4) sge/8.1.9         9) git/2.28.0                     14) conda_R/4.2.x
+  5) gcc/4.4.7        10) git-lfs/2.8.0                  15) sratoolkit/2.10.8
+
+ 
+
+Processing sample SRR17762196
+Fri Feb 17 07:24:58 EST 2023
+Adding LIBD modules
+Loading git
+Loading LIBD module for git-status-size/github
+Loading LIBD module for git-lfs/2.8.0
+Loading LIBD module for rmate/1.5.9
+Loading LIBD module for ruby/2.6.4p104
+Loading conda_R/4.2.x
+**** Job starts ****
+Fri Feb 17 08:12:04 EST 2023
+**** JHPCE info ****
+User: mtotty
+Job id: 2968380
+Job name: Yu_crossAMY_LIBD4125_FASTQ
+Hostname: compute-062.cm.cluster
+Task id: 2
+
+Currently Loaded Modules:
+  1) matlab/R2019a     6) COMMUNITY_CENTOS7_DEFAULT_ENV  11) ruby/2.6.4p104
+  2) stata/17          7) JHPCE_CENTOS7_DEFAULT_ENV      12) rmate/1.5.9
+  3) JHPCE_tools/1.0   8) git-status-size/github         13) conda/3-4.11.0
+  4) sge/8.1.9         9) git/2.28.0                     14) conda_R/4.2.x
+  5) gcc/4.4.7        10) git-lfs/2.8.0                  15) sratoolkit/2.10.8
+
+ 
+
+Processing sample SRR17762196
+Fri Feb 17 08:12:05 EST 2023
+Read 404424332 spots for /dcs04/lieber/marmaypag/Yu_crossAMY_LIBD4125/raw-data/SRA/SRR17762196
+Written 404424332 spots for /dcs04/lieber/marmaypag/Yu_crossAMY_LIBD4125/raw-data/SRA/SRR17762196
+mv: cannot stat ‘SRR17762196_01.fastq’: No such file or directory
+mv: cannot stat ‘SRR17762196_02.fastq’: No such file or directory
+**** Job ends ****
+Fri Feb 17 10:09:30 EST 2023
+Adding LIBD modules
+Loading git
+Loading LIBD module for git-status-size/github
+Loading LIBD module for git-lfs/2.8.0
+Loading LIBD module for rmate/1.5.9
+Loading LIBD module for ruby/2.6.4p104
+Loading conda_R/4.2.x
+**** Job starts ****
+Fri Feb 17 11:37:31 EST 2023
+**** JHPCE info ****
+User: mtotty
+Job id: 2968853
+Job name: Yu_crossAMY_LIBD4125_FASTQ
+Hostname: compute-127.cm.cluster
+Task id: 2
+
+Currently Loaded Modules:
+  1) matlab/R2019a     6) COMMUNITY_CENTOS7_DEFAULT_ENV  11) ruby/2.6.4p104
+  2) stata/17          7) JHPCE_CENTOS7_DEFAULT_ENV      12) rmate/1.5.9
+  3) JHPCE_tools/1.0   8) git-status-size/github         13) conda/3-4.11.0
+  4) sge/8.1.9         9) git/2.28.0                     14) conda_R/4.2.x
+  5) gcc/4.4.7        10) git-lfs/2.8.0                  15) sratoolkit/2.10.8
+
+ 
+
+Processing sample SRR17762196
+Fri Feb 17 11:37:32 EST 2023
+Adding LIBD modules
+Loading git
+Loading LIBD module for git-status-size/github
+Loading LIBD module for git-lfs/2.8.0
+Loading LIBD module for rmate/1.5.9
+Loading LIBD module for ruby/2.6.4p104
+Loading conda_R/4.2.x
+**** Job starts ****
+Fri Feb 17 11:43:32 EST 2023
+**** JHPCE info ****
+User: mtotty
+Job id: 2968855
+Job name: Yu_crossAMY_LIBD4125_FASTQ
+Hostname: compute-057.cm.cluster
+Task id: 2
+
+Currently Loaded Modules:
+  1) matlab/R2019a     6) COMMUNITY_CENTOS7_DEFAULT_ENV  11) ruby/2.6.4p104
+  2) stata/17          7) JHPCE_CENTOS7_DEFAULT_ENV      12) rmate/1.5.9
+  3) JHPCE_tools/1.0   8) git-status-size/github         13) conda/3-4.11.0
+  4) sge/8.1.9         9) git/2.28.0                     14) conda_R/4.2.x
+  5) gcc/4.4.7        10) git-lfs/2.8.0                  15) sratoolkit/2.10.8
+
+ 
+
+Processing sample SRR17762196
+Fri Feb 17 11:43:33 EST 2023
+Read 404424332 spots for /dcs04/lieber/marmaypag/Yu_crossAMY_LIBD4125/raw-data/SRA/SRR17762196
+Written 404424332 spots for /dcs04/lieber/marmaypag/Yu_crossAMY_LIBD4125/raw-data/SRA/SRR17762196
+mkdir: cannot create directory ‘/dcs04/lieber/marmaypag/Yu_crossAMY_LIBD4125/raw-data/FASTQ/SRR17762196’: File exists
+mv: cannot stat ‘SRR17762196_1.fastq’: No such file or directory
+mv: cannot stat ‘SRR17762196_2.fastq’: No such file or directory
+**** Job ends ****
+Fri Feb 17 13:34:56 EST 2023

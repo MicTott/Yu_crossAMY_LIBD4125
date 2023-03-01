@@ -1,0 +1,466 @@
+library(SingleCellExperiment)
+library(scater)
+library(scran)
+library(scry)
+library(DropletUtils)
+library(gridExtra)
+library(ggplot2)
+library(dplyr)
+library(bluster)
+library(pheatmap)
+library(AnnotationDbi)
+library(org.Hs.eg.db)
+library(EnsDb.Hsapiens.v86)
+library(scDblFinder)
+library(purrr)
+library(BiocParallel)
+
+
+
+## Read in raw UMI x barcode matrix - **use pre-mRNA-aligned reads
+## 14 human AMY samples
+path.195 <- file.path("./processed-data/03_cellranger/SRR17762195/outs/raw_feature_bc_matrix")
+tag.195 <- read10xCounts(path.195, col.names=T)
+
+path.196 <- file.path("./processed-data/03_cellranger/SRR17762196/outs/raw_feature_bc_matrix")
+tag.196 <- read10xCounts(path.196, col.names=T)
+
+path.197 <- file.path("./processed-data/03_cellranger/SRR17762197/outs/raw_feature_bc_matrix")
+tag.197 <- read10xCounts(path.197, col.names=T)
+
+path.198 <- file.path("./processed-data/03_cellranger/SRR17762198/outs/raw_feature_bc_matrix")
+tag.198 <- read10xCounts(path.198, col.names=T)
+
+path.199 <- file.path("./processed-data/03_cellranger/SRR17762199/outs/raw_feature_bc_matrix")
+tag.199 <- read10xCounts(path.199, col.names=T)
+
+path.200 <- file.path("./processed-data/03_cellranger/SRR17762200/outs/raw_feature_bc_matrix")
+tag.200 <- read10xCounts(path.200, col.names=T)
+
+path.201 <- file.path("./processed-data/03_cellranger/SRR17762201/outs/raw_feature_bc_matrix")
+tag.201 <- read10xCounts(path.201, col.names=T)
+
+path.202 <- file.path("./processed-data/03_cellranger/SRR17762202/outs/raw_feature_bc_matrix")
+tag.202 <- read10xCounts(path.202, col.names=T)
+
+path.203 <- file.path("./processed-data/03_cellranger/SRR17762203/outs/raw_feature_bc_matrix")
+tag.203 <- read10xCounts(path.203, col.names=T)
+
+path.204 <- file.path("./processed-data/03_cellranger/SRR17762204/outs/raw_feature_bc_matrix")
+tag.204 <- read10xCounts(path.204, col.names=T)
+
+path.205 <- file.path("./processed-data/03_cellranger/SRR17762205/outs/raw_feature_bc_matrix")
+tag.205 <- read10xCounts(path.205, col.names=T)
+
+path.206 <- file.path("./processed-data/03_cellranger/SRR17762206/outs/raw_feature_bc_matrix")
+tag.206 <- read10xCounts(path.206, col.names=T)
+
+path.207 <- file.path("./processed-data/03_cellranger/SRR17762207/outs/raw_feature_bc_matrix")
+tag.207 <- read10xCounts(path.207, col.names=T)
+
+path.208 <- file.path("./processed-data/03_cellranger/SRR17762208/outs/raw_feature_bc_matrix")
+tag.207 <- read10xCounts(path.208, col.names=T)
+
+
+##remove unneeded files, save memory 
+rm(list=ls(pattern="path"))
+
+#make sce list
+sceList.humanAMY <- list(tag.195, tag.196, tag.197, tag.198, tag.199,
+                         tag.200, tag.201, tag.202, tag.203, tag.204,
+                         tag.205, tag.206, tag.207, tag.208)
+
+# object.size(sceList.humanAMY)
+# 7910443776 bytes
+
+## remove stuff to save memory
+rm(tag.195, tag.196, tag.197, tag.198, tag.199,
+   tag.200, tag.201, tag.202, tag.203, tag.204,
+   tag.205, tag.206, tag.207, tag.208)
+
+## set names
+names(sceList.humanAMY) <- c("SRR-195", "SRR-196", "SRR-197", "SRR-198", "SRR-199",
+                             "SRR-200", "SRR-201", "SRR-202", "SRR-203", "SRR-204",
+                             "SRR-205", "SRR-206", "SRR-207", "SRR-208")
+
+## Get unique gene symbols
+# From Ensembl ID > Gene Symbol
+for(i in 1:length(sceList.humanAMY)){
+  rownames(sceList.humanAMY[[i]]) <- uniquifyFeatureNames(rowData(sceList.humanAMY[[i]])$ID,
+                                                          rowData(sceList.humanAMY[[i]])$Symbol)
+}
+
+##Change Sample metadata column so it's not a long file name anymore
+for(i in 1:length(sceList.humanAMY)){
+  colData(sceList.humanAMY[[i]])$Sample<-names(sceList.humanAMY[i])
+}
+
+# In case mess anything up
+save.image('./processed-data/05_preprocess_QC/01_sce_list.RData')
+#load('./processed-data/05_preprocess_QC/01_sce_list.RData')
+
+# =========================================
+# Quality Control
+# =========================================
+
+# ======== Plot Barcode ranks ========
+dev.new()
+for(i in 1:length(sceList.humanAMY)){
+  
+  bcrank <- barcodeRanks(counts(sceList.humanAMY[[i]]))
+  
+  pdf(paste0("./plots/04_preprocess_QC/BarcodeRanks_",names(sceList.humanAMY[i]),".pdf"))
+  
+  # Only showing unique points for plotting speed.
+  uniq <- !duplicated(bcrank$rank)
+  plot(bcrank$rank[uniq], bcrank$total[uniq], log="xy",
+       xlab="Rank", ylab="Total UMI count", cex.lab=1.2)
+  
+  abline(h=metadata(bcrank)$inflection, col="darkgreen", lty=2)
+  abline(h=metadata(bcrank)$knee, col="dodgerblue", lty=2)
+  
+  legend("bottomleft", legend=c("Inflection", "Knee"), 
+         col=c("darkgreen", "dodgerblue"), lty=2, cex=1.2)
+  
+  title(paste0(names(sceList.humanAMY[i])))
+  dev.off()
+}
+
+
+# ======== Run emptyDrops ========
+e.out<-list()
+
+for(i in 1:length(sceList.humanAMY)){
+  set.seed(73812)
+  e.out[[i]] <- emptyDrops(counts(sceList.humanAMY[[i]]),niters=15000)
+  
+  str(e.out[[i]], max.level=1)
+  print(table(Signif = e.out[[i]]$FDR <= 0.001, Limited = e.out[[i]]$Limited))
+}
+
+# Subset:
+for(i in 1:length(sceList.humanAMY)){
+  sceList.humanAMY[[i]] <- sceList.humanAMY[[i]][ ,which(e.out[[i]]$FDR <= 0.001)]
+}
+# Check
+lapply(sceList.humanAMY,dim)
+
+##Bind sce.total
+sce.total<-cbind(sceList.humanAMY[[1]],sceList.humanAMY[[2]],sceList.humanAMY[[3]],
+                 sceList.humanAMY[[4]],sceList.humanAMY[[5]],sceList.humanAMY[[6]],
+                 sceList.humanAMY[[7]],sceList.humanAMY[[8]],sceList.humanAMY[[9]],
+                 sceList.humanAMY[[10]],sceList.humanAMY[[11]],sceList.humanAMY[[12]],
+                 sceList.humanAMY[[12]],sceList.humanAMY[[14]])
+
+# EMPTY DROPS OUTPUT HERE
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+
+##Add condition metadata column to colData
+# colData(sce.total)$condition<-factor(
+#   ifelse(
+#     colData(sce.total)$Sample %in% c("Sham-1","Sham-2","Sham-3"),
+#     "Sham","TBI"),
+#   levels=c('Sham','TBI')
+# )
+
+# Save image to reload later
+save.image('./processed-data/05_preprocess_QC/02_humanAMY_sce_total.Rdata')
+#load('./processed-data/05_preprocess_QC/02_humanAMY_sce_total.Rdata')
+
+# ======== Remove High mito percents ========
+
+location <- mapIds(EnsDb.Mmusculus.v79, keys=rowData(sce.total)$ID, 
+                   column="SEQNAME", keytype="GENEID")
+is.mito <- which(location=="MT")
+
+
+# ID & remove those with high mito alignment
+stats <- perCellQCMetrics(sce.total, subsets=list(Mito=is.mito))
+colnames(stats)
+
+# apply MAD threshold detection
+high.mito <- isOutlier(stats$subsets_Mito_percent, 
+                       nmads=3, type="higher",batch = sce.total$Sample)
+high.mito.table <- table(high.mito)
+
+## look at %mito
+high.mito.table["TRUE"]/sum(high.mito.table)  
+attributes(high.mito)
+colData(sce.total) <- cbind(colData(sce.total), stats)
+sce.total$high.mito<-high.mito
+
+
+# Save original for comparison/plotting (optional)
+sce.total.unfiltered <- sce.total
+
+# Get cutoffs for exclusion
+mitoCutoffs <- attributes(high.mito)$thresholds["higher"]
+mitoCutoffs <- round(mitoCutoffs, 2)
+
+# Remove outliers
+qc.lib <- isOutlier(sce.total$sum, log=TRUE, type="lower",batch = sce.total$Sample)
+qc.nexprs <- isOutlier(sce.total$detected, log=TRUE, type="lower",batch = sce.total$Sample)
+
+discard <- qc.lib | qc.nexprs | high.mito
+
+##Bind library size/expressed feature logical to sce
+colData(sce.total) <- cbind(colData(sce.total), qc.lib, qc.nexprs, discard)
+
+
+##Plot results of library size/expressed features
+pdf("./plots/05_preprocess_QC/totalQCmetrics_sizeandmito.pdf", height=5)
+grid.arrange(
+  plotColData(sce.total, x='Sample', y="sum", colour_by="discard") +
+    scale_y_log10() + ggtitle("Total count"),
+  plotColData(sce.total, x='Sample', y="detected", colour_by="discard") +
+    scale_y_log10() + ggtitle("Detected features"),
+  plotColData(sce.total, x='Sample', y="subsets_Mito_percent",
+              colour_by="high.mito"),
+  ncol=1
+)
+dev.off()
+
+
+##discard low expressed features/small libraries
+sce.total<-sce.total[,!sce.total$discard]
+dim(sce.total)
+
+##remove all genes with 0 counts
+keep <- rowSums(counts(sce.total) > 0) > 0
+sce.total <- sce.total[keep, ]
+
+#save.image('./processed-data/04_preprocess_QC/03_humanAMY_qc_metrics.RData')
+load('./processed-data/05_preprocess_QC/03_humanAMY_qc_metrics.RData')
+
+### Normalization ============================================================
+set.seed(1000)
+clusters <- quickCluster(sce.total,
+                         BPPARAM=MulticoreParam(4, progressbar = TRUE)
+                         )
+sce.total <- computeSumFactors(sce.total, cluster=clusters)
+sce.total <- logNormCounts(sce.total)
+
+###Feature Selection ============================================================
+#This is based on fitting Poisson model and then calculating Pearson residuals
+#Let's plot highly deviant genes first; this might give us an idea about how 
+#many genes to retain
+sce.total<-devianceFeatureSelection(sce.total, assay="counts", 
+                                    fam="poisson",sorted=TRUE)
+
+#pdf("plots/rank_vs_deviance_plot_sceTotal.pdf")
+plot(rowData(sce.total)$poisson_deviance, type="l", 
+     xlab="ranked genes",
+     ylab="poisson deviance", 
+     main="Feature Selection with Deviance, all nuclei",
+     ylim=c(0,500000))
+abline(v=5000,lty='dashed',col="red")
+#dev.off()
+
+hdg<-rownames(counts(sce.total))[1:5000]
+
+
+#Run nullResiduals to calculate Pearson residuals from poisson model
+sce.total<-nullResiduals(sce.total, assay = "counts",
+                         fam = "poisson", type = "pearson")
+
+
+### Dimensionality Reduction ============================================================
+set.seed(1000) 
+sce.total <- runPCA(sce.total,exprs_values="poisson_pearson_residuals", 
+                    subset_row=hdg,ncomponents=100) 
+reducedDimNames(sce.total)
+
+set.seed(100000)
+sce.total <- runUMAP(sce.total, dimred="PCA",subset_row=hdg)
+
+#Verify length
+ncol(reducedDim(sce.total, "PCA"))
+
+### Clustering============================================================
+g50 <- buildSNNGraph(sce.total, k=50, use.dimred = 'PCA')
+clust50 <- igraph::cluster_walktrap(g50)$membership
+colData(sce.total)$label <- factor(clust50)
+table(colData(sce.total)$label)
+
+##doublet detection and removal
+sample_id_names<- names(table(sce.total$Sample))
+names(sample_id_names)<-sample_id_names
+
+sample_id_rse<- map(sample_id_names,~sce.total[,sce.total$Sample==.x])
+## To speed up, run on sample-level top-HVGs - just take top 1000 ===
+pilot.data.normd <- map(sample_id_rse, ~logNormCounts(.x))
+#geneVar.samples <- map(pilot.data.normd, ~modelGeneVar(.x))
+#topHVGs <- map(geneVar.samples, ~getTopHVGs(.x, n = 2000))
+
+# Generate doublet density scores
+set.seed(109)
+dbl.dens.focused <- map(names(pilot.data.normd), ~computeDoubletDensity(pilot.data.normd[[.x]], subset.row=hdg,dims=50))
+names(dbl.dens.focused) <- names(pilot.data.normd)
+
+for(i in names(sample_id_rse)){
+  pilot.data.normd[[i]]$doublet.score <- dbl.dens.focused[[i]]
+}
+ref<-rbind(colData(pilot.data.normd[[1]]),colData(pilot.data.normd[[2]]),
+           colData(pilot.data.normd[[3]]),colData(pilot.data.normd[[4]]))
+identical(colnames(sce.total),rownames(ref))
+
+for(i in names(sample_id_rse)){
+  pilot.data.normd[[i]]$doubletScore <- dbl.dens.focused[[i]]
+}
+d<-list()
+for(i in 1:length(pilot.data.normd)){
+  d[[i]]<-pilot.data.normd[[i]]$doubletScore
+}
+dbl.dens<-do.call(c,d)
+
+summary(dbl.dens)
+
+quantile(dbl.dens, probs=seq(0,1,by=0.01),3)
+
+#0%         1%         2%         3%         4%         5%         6%
+#0.0000000  0.0000000  0.0000000  0.0088900  0.0090360  0.0096320  0.0174280
+#7%         8%         9%        10%        11%        12%        13%
+#0.0177800  0.0180720  0.0192640  0.0261420  0.0266700  0.0288960  0.0288960
+#14%        15%        16%        17%        18%        19%        20%
+#0.0348560  0.0355600  0.0385280  0.0435700  0.0444500  0.0451800  0.0481600
+#21%        22%        23%        24%        25%        26%        27%
+#0.0522840  0.0533400  0.0577920  0.0609980  0.0622300  0.0632520  0.0697120
+#28%        29%        30%        31%        32%        33%        34%
+#0.0711200  0.0770560  0.0784260  0.0813240  0.0866880  0.0889000  0.0958540
+#35%        36%        37%        38%        39%        40%        41%
+#0.0963200  0.0993960  0.1059520  0.1084320  0.1155700  0.1174680  0.1244600
+#42%        43%        44%        45%        46%        47%        48%
+#0.1265040  0.1348480  0.1394240  0.1444800  0.1481380  0.1541120  0.1568520
+#49%        50%        51%        52%        53%        54%        55%
+#0.1637440  0.1716840  0.1742800  0.1829940  0.1897560  0.1955800  0.2022720
+#56%        57%        58%        59%        60%        61%        62%
+#0.2091360  0.2168640  0.2259000  0.2311680  0.2408000  0.2504320  0.2600640
+#63%        64%        65%        66%        67%        68%        69%
+#0.2696960  0.2793280  0.2889600  0.2985920  0.3111500  0.3224180  0.3343320
+#70%        71%        72%        73%        74%        75%        76%
+#0.3485600  0.3659880  0.3795120  0.3949120  0.4141760  0.4337280  0.4527040
+#77%        78%        79%        80%        81%        82%        83%
+#0.4711700  0.4889500  0.5141260  0.5393920  0.5664100  0.5956300  0.6274080
+#84%        85%        86%        87%        88%        89%        90%
+#0.6622640  0.7023100  0.7407162  0.7898240  0.8365440  0.8945640  0.9578160
+#91%        92%        93%        94%        95%        96%        97%
+#1.0223500  1.1076800  1.2017880  1.3070730  1.4579600  1.7530240  2.5094994
+#98%        99%       100%
+#4.5573262  9.0132210 27.0081280
+
+
+
+
+save(sce.total,file='sce_total_preThalamusRemoval.rda')
+
+##remove putative doublets
+a<-colData(pilot.data.normd[[1]])
+b<-colData(pilot.data.normd[[2]])
+c<-colData(pilot.data.normd[[3]])
+d<-colData(pilot.data.normd[[4]])
+x<-rbind(a,b,c,d)
+sce.total$doubletScore<-x$doubletScore
+rm(x,pilot.data.normd)
+colData(sce.total)$doublet<-ifelse(sce.total$doubletScore > 5, T, F)
+sce.total<-sce.total[,sce.total$doublet==FALSE]
+
+##find marker genes
+markers<-findMarkers(sce.total,pval.type='all',
+                     direction='up',group=sce.total$label)
+
+save(markers,file='processed_data/sceTotal_markerGenes.rda')
+##thalamus detection and removal
+features<-c('Snap25','Tcf7l2','Zfhx3','Shox2','Ano1','Six3')
+umap<-list()
+for(i in 1:length(features)){
+  umap[[i]]<-plotUMAP(sce.total,text_by='label',colour_by=features[[i]])
+}
+
+
+pdf('plots/figS1_umaps_thalamusQC.pdf',h=9,w=8)
+grid.arrange(grobs=umap, ncol=2)
+dev.off()
+
+##save sce.total
+save(sce.total,file='sce_total_preThalamusRemoval.rda')
+
+##remove thalamic clusters (express Tcf7l2)
+sce.subset<-sce.total[,!sce.total$label %in% c(5,9,14)]
+rm(sce.total)
+
+##re-run analysis from devianceFeatureSelection()
+sce.subset<-devianceFeatureSelection(sce.subset, assay="counts", 
+                                     fam="poisson",sorted=TRUE)
+
+pdf('plots/rank_vs_poissonDeviance_sceSubset.pdf')
+plot(rowData(sce.subset)$poisson_deviance, type="l", 
+     xlab="ranked genes",
+     ylab="poisson deviance", 
+     main="Feature Selection with Deviance",
+     ylim=c(0,500000))
+abline(v=3000,col='red',lty='dashed')
+dev.off()
+hdg<-rownames(counts(sce.subset))[1:3000]
+
+#Run nullResiduals to calculate Pearson residuals from poisson model
+sce.subset<-nullResiduals(sce.subset, assay = "counts",
+                          fam = "poisson", type = "pearson")
+
+#PCA
+set.seed(2014) 
+sce.subset <- runPCA(sce.subset,exprs_values="poisson_pearson_residuals", 
+                     subset_row=hdg,ncomponents=50) 
+reducedDimNames(sce.subset)
+
+set.seed(202014)
+sce.subset <- runUMAP(sce.subset, dimred="PCA")
+
+#Verify length
+ncol(reducedDim(sce.subset, "PCA"))
+sce.subset
+
+pdf('umap.pdf')
+plotUMAP(sce.subset,colour_by='k_25_label',text_by='k_25_label')
+dev.off()
+
+save(sce.subset,hdg,file="sce_subset.rda")
+
+
+
+#Make sce objects for GitHub release
+# assay(sce.total,'poisson_pearson_residuals')<-NULL
+# assay(sce.total,'logcounts')<-NULL
+# reducedDim(sce.total,'PCA')<-NULL
+# reducedDim(sce.total,'UMAP')<-NULL
+# rowData(sce.total)<-rowData(sce.total)[,c(1,2)]
+# colData(sce.total)<-colData(sce.total)[,c(1,2,3,15)]
+# #save(sce.total,compress='xz',file='processed_data/sce_total.rda.xz')
+# 
+# 
+# assay(sce.subset,'poisson_pearson_residuals')<-NULL
+# assay(sce.subset,'logcounts')<-NULL
+# reducedDim(sce.subset,'PCA')<-NULL
+# reducedDim(sce.subset,'UMAP')<-NULL
+# rowData(sce.subset)<-rowData(sce.subset)[,c(1,2)]
+# colData(sce.subset)<-colData(sce.subset)[,c(1,2,3,21,24,25)]
+# save(sce.subset,compress='xz',file='processed_data/sce_subset.rda.xz')
+
+
+
+###move on to clustering/annotation/figure 1 plots 
