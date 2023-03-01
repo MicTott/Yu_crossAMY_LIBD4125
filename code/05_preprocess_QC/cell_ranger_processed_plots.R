@@ -11,7 +11,6 @@ library(rtracklayer)
 library(BiocParallel)
 library(scater)
 library(scuttle)
-library(jaffelab)
 library(here)
 library(sessioninfo)
 library(cowplot)
@@ -161,10 +160,25 @@ for (i in c("SNAP25", "SYT1", # neuronal
 plot_grid(ncol = 3, plotlist = plotlist)
 dev.off()
 
-# Isolate SST cluster (#32)
-sce.cluster.32 <- sce.863[,sce.863$cluster.graph %in% c(32)]
-sce.cluster.32
 
+
+# ============ Correlation betweeng genes ================
+
+# Computing between specific pairs:
+out <- correlatePairs(sce.863, pairings=rbind(c('SST','CORT'), c('SST', 'CRHBP'),c('SST', 'NPY'),c('CORT','CRHBP')), iters=1e5)
+head(out)
+
+# Cort scatterplots
+pdf("./plots/02_cellranger_plotting/correlate_markers_all_clusters.pdf", width = 7, height = 7)
+p1 <- plotExpression(sce.863, features="CORT", x="SST")
+p2 <- plotExpression(sce.863, features="CRHBP", x="SST")
+p3 <- plotExpression(sce.863, features="NPY", x="SST")
+p4 <- plotExpression(sce.863, features="TAC1", x="SST")
+p1+p2+p3+p4
+dev.off()
+
+
+# ======== Subset SST ==========
 # Computing between specific pairs:
 out <- correlatePairs(sce.cluster.32, pairings=rbind(c('SST','CORT'), c('SST', 'CRHBP'),c('SST', 'NPY'),c('CORT','CRHBP')), iters=1e5)
 head(out)
